@@ -69,6 +69,12 @@ class SharedPreferencesUtil {
 
   //---------------------- Developer Settings ---------------------------------//
 
+  String get apiBaseUrl => getString('apiBaseUrl') ?? '';
+  set apiBaseUrl(String value) => saveString('apiBaseUrl', value);
+
+  String get openAiApiKey => getString('openAiApiKey') ?? '';
+  set openAiApiKey(String value) => saveString('openAiApiKey', value);
+
   String get webhookOnConversationCreated => getString('webhookOnConversationCreated') ?? '';
 
   set webhookOnConversationCreated(String value) => saveString('webhookOnConversationCreated', value);

@@ -30,6 +30,29 @@ class _DeveloperSettingsPageState extends State<DeveloperSettingsPage> {
     super.initState();
   }
 
+  InputDecoration _getTextFieldDecoration(
+    String label, {
+    IconButton? suffixIcon,
+    bool canBeDisabled = false,
+    String hintText = '',
+  }) {
+    return InputDecoration(
+      labelText: label,
+      enabled: true && canBeDisabled,
+      hintText: hintText,
+      labelStyle: const TextStyle(
+        fontSize: 16,
+        color: Colors.grey,
+        decoration: TextDecoration.underline,
+      ),
+      enabledBorder: InputBorder.none,
+      focusedBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      suffixIcon: suffixIcon,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -360,6 +383,41 @@ class _DeveloperSettingsPageState extends State<DeveloperSettingsPage> {
                   // ),
                   const SizedBox(height: 16),
                   Divider(color: Colors.grey.shade500),
+                  const SizedBox(height: 16),
+
+                  // New toggle for environment variables:
+                  ToggleSectionWidget(
+                    isSectionEnabled: provider.envToggle,
+                    sectionTitle: 'Environment Variables',
+                    sectionDescription: 'Toggles the API Base URL and OpenAI Key fields.',
+                    options: [
+                      if (provider.envToggle) ...[
+                        TextField(
+                          controller: provider.apiBaseUrl,
+                          obscureText: false,
+                          autocorrect: false,
+                          enabled: true,
+                          enableSuggestions: false,
+                          decoration: _getTextFieldDecoration('API Base URL'),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: provider.openAiCtrl,
+                          obscureText: false,
+                          autocorrect: false,
+                          enabled: true,
+                          enableSuggestions: false,
+                          decoration: _getTextFieldDecoration('OpenAI API Key'),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        const SizedBox(height: 16),
+                      ]
+                    ],
+                    onSectionEnabledChanged: provider.onEnvToggleChanged,
+                  ),
+
+                  const SizedBox(height: 16),
                   const SizedBox(height: 32),
                   const Text(
                     'Experimental',
@@ -406,26 +464,6 @@ class _DeveloperSettingsPageState extends State<DeveloperSettingsPage> {
           );
         },
       ),
-    );
-  }
-
-  _getTextFieldDecoration(String label, {IconButton? suffixIcon, bool canBeDisabled = false, String hintText = ''}) {
-    return InputDecoration(
-      labelText: label,
-      enabled: true && canBeDisabled,
-      hintText: hintText,
-      // labelText: hintText,
-      labelStyle: const TextStyle(
-        fontSize: 16,
-        color: Colors.grey,
-        decoration: TextDecoration.underline,
-      ),
-      // bottom border
-      enabledBorder: InputBorder.none,
-      focusedBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey),
-      ),
-      suffixIcon: suffixIcon,
     );
   }
 }

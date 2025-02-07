@@ -8,6 +8,8 @@ import 'package:friend_private/utils/logger.dart';
 import 'package:friend_private/utils/other/validators.dart';
 
 class DeveloperModeProvider extends BaseProvider {
+  final TextEditingController apiBaseUrl = TextEditingController();
+  final TextEditingController openAiCtrl = TextEditingController();
   final TextEditingController webhookOnConversationCreated = TextEditingController();
   final TextEditingController webhookOnTranscriptReceived = TextEditingController();
   final TextEditingController webhookAudioBytes = TextEditingController();
@@ -27,6 +29,14 @@ class DeveloperModeProvider extends BaseProvider {
 
   bool localSyncEnabled = false;
   bool followUpQuestionEnabled = false;
+
+  bool _envToggle = false;  // Add this to track whether env fields should be shown
+
+  bool get envToggle => _envToggle;
+  void onEnvToggleChanged(bool val) {
+    _envToggle = val;
+    notifyListeners();
+  }
 
   void onConversationEventsToggled(bool value) {
     conversationEventsToggled = value;
@@ -91,6 +101,8 @@ class DeveloperModeProvider extends BaseProvider {
   Future initialize() async {
     setIsLoading(true);
     localSyncEnabled = SharedPreferencesUtil().localSyncEnabled;
+    apiBaseUrl.text = SharedPreferencesUtil().apiBaseUrl;
+    openAiCtrl.text = SharedPreferencesUtil().openAiApiKey;
     webhookOnConversationCreated.text = SharedPreferencesUtil().webhookOnConversationCreated;
     webhookOnTranscriptReceived.text = SharedPreferencesUtil().webhookOnTranscriptReceived;
     webhookAudioBytes.text = SharedPreferencesUtil().webhookAudioBytes;
@@ -151,6 +163,16 @@ class DeveloperModeProvider extends BaseProvider {
       setIsLoading(false);
       return;
     }
+    if (apiBaseUrl.text.isNotEmpty && !isValidUrl(apiBaseUrl.text)) {
+      AppSnackbar.showSnackbarError('Invalid API base URL');
+      setIsLoading(false);
+      return;
+    }
+    if (openAiCtrl.text.isNotEmpty && !isValidUrl(openAiCtrl.text)) {
+      AppSnackbar.showSnackbarError('Invalid OpenAI API key');
+      setIsLoading(false);
+      return;
+    }
     if (webhookOnConversationCreated.text.isNotEmpty && !isValidUrl(webhookOnConversationCreated.text)) {
       AppSnackbar.showSnackbarError('Invalid memory created webhook URL');
       setIsLoading(false);
@@ -183,6 +205,8 @@ class DeveloperModeProvider extends BaseProvider {
       prefs.webhookOnTranscriptReceived = webhookOnTranscriptReceived.text;
       prefs.webhookOnConversationCreated = webhookOnConversationCreated.text;
       prefs.webhookDaySummary = webhookDaySummary.text;
+      prefs.apiBaseUrl = apiBaseUrl.text;
+      prefs.openAiApiKey = openAiCtrl.text;
     } catch (e) {
       Logger.error('Error occurred while updating endpoints: $e');
     }
