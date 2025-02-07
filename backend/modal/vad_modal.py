@@ -1,24 +1,20 @@
 import os
 import uuid
-
 import torch
+
 from fastapi import UploadFile
 from pyannote.audio import Pipeline
 
 # Instantiate pretrained voice activity detection pipeline
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+hf_token = os.getenv("HUGGINGFACE_TOKEN")
+if not hf_token:
+    raise EnvironmentError("HUGGINGFACE_TOKEN environment variable not set.")
+
 vad = Pipeline.from_pretrained(
     "pyannote/voice-activity-detection",
-    use_auth_token=os.getenv('HUGGINGFACE_TOKEN')
+    use_auth_token=hf_token
 ).to(device)
-
-# app = App(name='vad')
-# image = (
-#     Image.debian_slim()
-#     .pip_install("pyannote.audio")
-#     .pip_install("torch")
-#     .pip_install("torchaudio")
-# )
 
 os.makedirs('_temp', exist_ok=True)
 

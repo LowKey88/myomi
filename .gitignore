@@ -11,6 +11,11 @@ dump/
 *.wav
 node_modules
 yarn.lock
+*/application_default_credentials.json
+application_default_credentials.json
+google-credentials.json
+*/google-credentials.json
+
 
 # General
 .idea/

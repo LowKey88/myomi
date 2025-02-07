@@ -37,3 +37,24 @@
 18. Assign the url given by ngrok in the app’s env to `API_BASE_URL`
 19. Now your app should be using your local backend
 
+quickstart with docker compose
+
+fill example values in .env file
+```
+cp .env.template .env
+```
+run the following command
+```
+docker-compose up
+```
+
+for modal/vad_modal.py there is a model "pyannote/voice-activity-detection" you need to sign consent your user  in that models HF page. and than your  auth token will works. 
+
+run ngrok to expose the port 8000
+```
+ngrok http 8000
+```
+copy the ngrok url and paste it in the .env file as API_BASE_URL
+or in developer settings in the app you can type it
+ 
+
