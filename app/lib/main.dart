@@ -47,6 +47,9 @@ import 'package:opus_dart/opus_dart.dart';
 import 'package:opus_flutter/opus_flutter.dart' as opus_flutter;
 import 'package:provider/provider.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'services/bluetooth_manager.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
 
 Future<bool> _init() async {
   // Service manager
@@ -95,6 +98,11 @@ void main() async {
   FlutterForegroundTask.initCommunicationPort();
   // _setupAudioSession();
   bool isAuth = await _init();
+
+  await _initHive();
+  await BluetoothManager.singleton.initialize();
+  BluetoothManager.singleton.attemptReconnectFromStorage();
+
   if (Env.instabugApiKey != null) {
     await Instabug.setWelcomeMessageMode(WelcomeMessageMode.disabled);
     runZonedGuarded(
@@ -122,6 +130,19 @@ void main() async {
     runApp(const MyApp());
   }
 }
+
+Future<void> _initHive() async {
+  final appDocumentDir = await path_provider.getApplicationDocumentsDirectory();
+  Hive.init(appDocumentDir.path);
+  await Hive.initFlutter();
+  
+  // Open the 'NotificationApps' box
+  await Hive.openBox('NotificationApps');
+}
+
+const notificationChannelId = 'my_foreground';
+const notificationId = 888;
+
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

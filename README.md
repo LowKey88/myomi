@@ -22,6 +22,13 @@ transcriptions of meetings, chats, and voice memos wherever you are.
 
 </div>
 
+## About This Fork
+
+• Set a base API URL and OpenAI API key directly in developer settings, eliminating the need to rebuild the APK.  
+• Added a Docker Compose setup for streamlined backend deployment (Firebase config, HuggingFace token, VAD model activation).  
+• Integrated Even Realities G1 smart glasses, letting you view chat text on the glasses. Tap the left glass to invoke the chat and plan to add real-time transcriptions from Omi devices.  
+• Planning proactive “wake word” AI features so you can ask questions and see answers displayed on your glasses.  
+
 [//]: # (## Features)
 
 [//]: # ()

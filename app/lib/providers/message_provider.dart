@@ -7,6 +7,9 @@ import 'package:friend_private/backend/schema/app.dart';
 import 'package:friend_private/backend/schema/message.dart';
 import 'package:friend_private/providers/app_provider.dart';
 import 'package:friend_private/utils/file.dart';
+import '/services/bluetooth_manager.dart';
+
+final BluetoothManager _bluetoothManager = BluetoothManager();
 
 class MessageProvider extends ChangeNotifier {
   AppProvider? appProvider;
@@ -187,9 +190,12 @@ class MessageProvider extends ChangeNotifier {
     var message = ServerMessage.empty(appId: appId);
     messages.insert(0, message);
     notifyListeners();
-
+    await _bluetoothManager.sendText('thinking...');
+    List<String> words = message.text.trim().split(' ');
     try {
       await for (var chunk in sendMessageStreamServer(text, appId: appId)) {
+        words = message.text.trim().split(' ');
+
         if (chunk.type == MessageChunkType.think) {
           message.thinkings.add(chunk.text);
           notifyListeners();
@@ -205,6 +211,7 @@ class MessageProvider extends ChangeNotifier {
         if (chunk.type == MessageChunkType.done) {
           message = chunk.message!;
           messages[0] = message;
+          // for auto display clearing 
           notifyListeners();
           continue;
         }
@@ -215,6 +222,9 @@ class MessageProvider extends ChangeNotifier {
           continue;
         }
       }
+      List<String> sentences = _bluetoothManager.createSentences(words);
+      await _bluetoothManager.displaySentences(sentences);
+      
     } catch (e) {
       message.text = ServerMessageChunk.failedMessage().text;
       notifyListeners();

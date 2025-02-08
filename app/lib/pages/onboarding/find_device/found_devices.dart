@@ -6,6 +6,7 @@ import 'package:friend_private/providers/onboarding_provider.dart';
 import 'package:friend_private/widgets/dialog.dart';
 import 'package:gradient_borders/gradient_borders.dart';
 import 'package:provider/provider.dart';
+import 'package:friend_private/widgets/glass_status.dart';
 
 class FoundDevices extends StatefulWidget {
   final bool isFromOnboarding;
@@ -88,6 +89,20 @@ class _FoundDevicesState extends State<FoundDevices> {
                   color: Color(0xCCFFFFFF),
                 ),
               ),
+            const SizedBox(height: 24),
+            const Divider(color: Colors.white24),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.0),
+              child: Text(
+                'G1 Smart Glasses',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const GlassStatus(),
             if (provider.isConnected)
               Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),

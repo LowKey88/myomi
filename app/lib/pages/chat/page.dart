@@ -28,6 +28,8 @@ import 'package:uuid/uuid.dart';
 
 import 'widgets/message_action_menu.dart';
 
+
+
 class ChatPage extends StatefulWidget {
   const ChatPage({
     super.key,
@@ -489,4 +491,5 @@ class ChatPageState extends State<ChatPage> with AutomaticKeepAliveClientMixin {
   }
 
   scrollToBottom() => _moveListToBottom();
+
 }
