@@ -451,7 +451,7 @@ Future<void> sendText(String text, {
             word.endsWith(';') || word.endsWith(')') ||
             word.endsWith(']') || word.endsWith('}') ||
             word.endsWith('"') || word.endsWith("'") ||
-            word.endsWith('\n') ) {
+            word.endsWith('\n') || word.endsWith(",")  ) {
           sentences.add(sentence);
           sentence = '';
         }
@@ -459,7 +459,7 @@ Future<void> sendText(String text, {
     return sentences;
   }
 
-  Future<void> displaySentences(List<String> sentences, {int durationMultiplier = 10}) async {
+  Future<void> displaySentences(List<String> sentences, {int durationMultiplier = 25}) async {
     for (var sentence in sentences) {
       await sendText(sentence);
       int duration = sentence.length * durationMultiplier;
@@ -562,7 +562,7 @@ Future<void> sendText(String text, {
         msgId: (notification.id ?? 1) + DateTime.now().millisecondsSinceEpoch,
         action: 0,
         type: 0,
-        appIdentifier: notification.packageName ?? 'dev.maartje.visionlink',
+        appIdentifier: notification.packageName ?? 'dev.visionlink.coreos',
         title: notification.title ?? '',
         subtitle: '',
         message: notification.content ?? '',

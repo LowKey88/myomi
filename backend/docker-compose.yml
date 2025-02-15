@@ -21,6 +21,8 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/application_default_credentials.json
     volumes:
       - ~/.config/gcloud/application_default_credentials.json:/app/application_default_credentials.json:ro
+      # get live code updates
+      - .:/app
 
   vad:
     platform: linux/amd64  # emulate amd64

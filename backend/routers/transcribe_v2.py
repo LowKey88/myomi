@@ -22,6 +22,7 @@ from utils.memories.location import get_google_maps_location
 from utils.memories.process_memory import process_memory
 from utils.plugins import trigger_external_integrations
 from utils.stt.streaming import *
+from utils.stt.whisper_process import process_audio_whisper
 from utils.webhooks import send_audio_bytes_developer_webhook, realtime_transcript_webhook, \
     get_audio_bytes_webhook_seconds
 from utils.pusher import connect_to_trigger_pusher
@@ -37,6 +38,7 @@ class STTService(str, Enum):
     deepgram = "deepgram"
     soniox = "soniox"
     speechmatics = "speechmatics"
+    whisper = "whisper"
 
     # auto = "auto"
 
@@ -48,6 +50,8 @@ class STTService(str, Enum):
             return 'soniox_streaming'
         elif value == STTService.speechmatics:
             return 'speechmatics_streaming'
+        elif value == STTService.whisper:
+            return 'whisper_streaming'
 
 
 def retrieve_in_progress_memory(uid):
@@ -294,6 +298,7 @@ async def _websocket_util(
     speechmatics_socket = None
     deepgram_socket = None
     deepgram_socket2 = None
+    whisper_socket = None # Initialize whisper_socket
 
     speech_profile_duration = 0
     try:
@@ -302,9 +307,17 @@ async def _websocket_util(
         if language == 'en' and (codec == 'opus' or codec == 'pcm16') and include_speech_profile:
             file_path = get_profile_audio_if_exists(uid)
             speech_profile_duration = AudioSegment.from_wav(file_path).duration_seconds + 5 if file_path else 0
-
+        
+        # stt_service = STTService.whisper
+        # WHISPER
+        if stt_service == STTService.whisper:
+            whisper_socket = await process_audio_whisper(stream_transcript, sample_rate, language, preseconds=speech_profile_duration)
+            await whisper_socket.start() # Ensure start is called
+            # if speech_profile_duration: # Removed this, handled in receive_audio
+            #     await send_initial_file_path(file_path, whisper_socket.send)
+        
         # DEEPGRAM
-        if stt_service == STTService.deepgram:
+        elif stt_service == STTService.deepgram:
             deepgram_socket = await process_audio_dg(
                 stream_transcript, language, sample_rate, 1, preseconds=speech_profile_duration
             )
@@ -458,7 +471,7 @@ async def _websocket_util(
 
         while websocket_active or len(realtime_segment_buffers) > 0:
             try:
-                await asyncio.sleep(0.3)  # 300ms
+                await asyncio.sleep(0.1)  # 300ms
 
                 if not realtime_segment_buffers or len(realtime_segment_buffers) == 0:
                     continue
@@ -504,7 +517,7 @@ async def _websocket_util(
             except Exception as e:
                 print(f'Could not process transcript: error {e}', uid)
 
-    async def receive_audio(dg_socket1, dg_socket2, soniox_socket, speechmatics_socket1):
+    async def receive_audio(dg_socket1, dg_socket2, soniox_socket, speechmatics_socket1, whisper_socket): # Added whisper_socket
         nonlocal websocket_active
         nonlocal websocket_close_code
 
@@ -537,6 +550,9 @@ async def _websocket_util(
                             dg_socket2 = None
                     else:
                         dg_socket2.send(data)
+
+                if whisper_socket is not None: # Added whisper_socket
+                    await whisper_socket.send(data)
 
                 # Send to external trigger
                 if audio_bytes_send:
@@ -594,7 +610,7 @@ async def _websocket_util(
 
     try:
         receive_task = asyncio.create_task(
-            receive_audio(deepgram_socket, deepgram_socket2, soniox_socket, speechmatics_socket)
+            receive_audio(deepgram_socket, deepgram_socket2, soniox_socket, speechmatics_socket, whisper_socket) # Added whisper_socket
         )
         stream_transcript_task = asyncio.create_task(stream_transcript_process())
         heartbeat_task = asyncio.create_task(send_heartbeat())

@@ -18,6 +18,8 @@ headers = {
 
 async def send_initial_file_path(file_path: str, transcript_socket_async_send):
     print('send_initial_file_path')
+    if transcript_socket_async_send is None:
+        raise ValueError("transcript_socket_async_send callback is None")
     start = time.time()
     # Reading and sending in chunks
     with open(file_path, "rb") as file:
@@ -25,8 +27,11 @@ async def send_initial_file_path(file_path: str, transcript_socket_async_send):
             chunk = file.read(320)
             if not chunk:
                 break
-            # print('Uploading', len(chunk))
-            await transcript_socket_async_send(bytes(chunk))
+            # Check if the callback is a coroutine function
+            if asyncio.iscoroutinefunction(transcript_socket_async_send):
+                await transcript_socket_async_send(bytes(chunk))
+            else:
+                transcript_socket_async_send(bytes(chunk))
             await asyncio.sleep(0.0001)  # if it takes too long to transcribe
 
     print('send_initial_file_path', time.time() - start)
@@ -167,9 +172,9 @@ def connect_to_deepgram(on_message, on_error, language: str, sample_rate: int, c
             filler_words=False,
             channels=channels,
             multichannel=channels > 1,
-            model='nova-2-general',
+            model='nova-3-general',
             sample_rate=sample_rate,
-            encoding='linear16'
+            encoding='linear16',
         )
         result = dg_connection.start(options)
         print('Deepgram connection started:', result)
