@@ -7,7 +7,7 @@ import 'package:friend_private/backend/schema/app.dart';
 import 'package:friend_private/backend/schema/message.dart';
 import 'package:friend_private/providers/app_provider.dart';
 import 'package:friend_private/utils/file.dart';
-import '/services/bluetooth_manager.dart';
+import '../services/devices/g1/g1_bluetooth_manager.dart';
 
 final BluetoothManager _bluetoothManager = BluetoothManager();
 

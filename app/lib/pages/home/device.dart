@@ -8,7 +8,7 @@ import 'package:friend_private/utils/analytics/mixpanel.dart';
 import 'package:friend_private/widgets/device_widget.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:provider/provider.dart';
-import 'package:friend_private/widgets/glass_status.dart';
+import 'package:friend_private/widgets/g1_glass_status.dart';
 
 import '../settings/device_settings.dart';
 

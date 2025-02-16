@@ -2,7 +2,7 @@ import '/models/g1/commands.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'dart:async';
-import '../../services/bluetooth_reciever.dart';
+import '../../services/devices/g1/g1_bluetooth_reciever.dart';
 import '../../utils/constants.dart';
 
 enum GlassSide { left, right }
