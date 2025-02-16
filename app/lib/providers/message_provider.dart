@@ -341,7 +341,6 @@ class MessageProvider extends ChangeNotifier {
     messages.insert(0, message);
     notifyListeners();
     List<String> fileIds = uploadedFiles.map((e) => e.id).toList();
-    SharedPreferencesUtil().fileIdsList = fileIds;
     clearSelectedFiles();
     clearUploadedFiles();    await _bluetoothManager.sendText('thinking...');
     List<String> words = message.text.trim().split(' ');
