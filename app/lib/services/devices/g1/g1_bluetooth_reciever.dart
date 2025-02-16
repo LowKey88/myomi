@@ -8,14 +8,12 @@ import '/utils/lc3.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:friend_private/providers/message_provider.dart';
-import '/services/devices/g1/g1_pcm_streaming_adapter.dart';
 
 // Command response status codes
 const int RESPONSE_SUCCESS = 0xC9;
 const int RESPONSE_FAILURE = 0xCA;
 final bt = BluetoothManager();
-final g1PcmAdapter = G1PcmStreamAdapter();
-
+final provider = MessageProvider();
 
 class BluetoothReciever {
   static final BluetoothReciever singleton = BluetoothReciever._internal();
@@ -39,7 +37,6 @@ class BluetoothReciever {
 
   BluetoothReciever._internal();
 
-  
 
   Future<void> receiveHandler(GlassSide side, List<int> data) async {
     if (data.isEmpty) return;
@@ -122,7 +119,7 @@ class BluetoothReciever {
         final startTime = DateTime.now();
         final transcription =
             await (await WhisperService.service()).transcribe(pcm);
-        var provider = MessageProvider();
+        
         await provider.sendMessageStreamToServer(transcription);
         final currentMessage = provider.messages.isNotEmpty
         ? provider.messages.first.text
@@ -159,7 +156,6 @@ class BluetoothReciever {
     debugPrint(
         '[$side] Received voice data chunk: seq=$seq, length=${voiceData.length}');
     voiceCollectorAI.addChunk(seq, voiceData);
-    g1PcmAdapter.processChunk(voiceData);
   }
 
   void handleQuickNoteCommand(GlassSide side, List<int> data) {

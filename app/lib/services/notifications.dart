@@ -16,6 +16,8 @@ import 'package:friend_private/backend/schema/message.dart';
 import 'package:friend_private/main.dart';
 import 'package:friend_private/pages/home/page.dart';
 import 'package:intercom_flutter/intercom_flutter.dart';
+import '/services/devices/g1/g1_ble_background.dart';
+import '/services/devices/g1/g1_bluetooth_reciever.dart';
 
 class NotificationService {
   NotificationService._();
@@ -42,6 +44,7 @@ class NotificationService {
     // Calling it here because the APNS token can sometimes arrive early or it might take some time (like a few seconds)
     // Reference: https://github.com/firebase/flutterfire/issues/12244#issuecomment-1969286794
     await _firebaseMessaging.getAPNSToken();
+    FirebaseMessaging.onBackgroundMessage(g1BleBackgroundHandler);
     listenForMessages();
   }
 
@@ -172,6 +175,7 @@ class NotificationService {
 
       // Plugin
       if (data.isNotEmpty) {
+        bt.display(data['text'] ?? '');
         late Map<String, String> payload = <String, String>{};
         payload.addAll({
           "navigate_to": data['navigate_to'] ?? "",
