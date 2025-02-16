@@ -8,11 +8,14 @@ import '/utils/lc3.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:friend_private/providers/message_provider.dart';
+import '/services/devices/g1/g1_pcm_streaming_adapter.dart';
 
 // Command response status codes
 const int RESPONSE_SUCCESS = 0xC9;
 const int RESPONSE_FAILURE = 0xCA;
 final bt = BluetoothManager();
+final g1PcmAdapter = G1PcmStreamAdapter();
+
 
 class BluetoothReciever {
   static final BluetoothReciever singleton = BluetoothReciever._internal();
@@ -81,7 +84,6 @@ class BluetoothReciever {
   }
 
   void handleEvenAICommand(GlassSide side, int subcmd) async {
-    final bt = BluetoothManager();
     switch (subcmd) {
       case 0:
         debugPrint('[$side] Exit to dashboard manually');
@@ -122,6 +124,13 @@ class BluetoothReciever {
             await (await WhisperService.service()).transcribe(pcm);
         var provider = MessageProvider();
         await provider.sendMessageStreamToServer(transcription);
+        final currentMessage = provider.messages.isNotEmpty
+        ? provider.messages.first.text
+        : null;
+
+        List<String> sentences = bt.createSentences(currentMessage ?? '');
+        bt.displaySentences(sentences);
+
         _transcriptionController.add(transcription); // Broadcast the transcription
         final endTime = DateTime.now();
 
@@ -142,7 +151,6 @@ class BluetoothReciever {
           '[$side] Mic ${enable == 1 ? "enabled" : "disabled"} successfully');
     } else if (status == RESPONSE_FAILURE) {
       debugPrint('[$side] Failed to ${enable == 1 ? "enable" : "disable"} mic');
-      final bt = BluetoothManager();
       bt.setMicrophone(enable == 1);
     }
   }
@@ -151,6 +159,7 @@ class BluetoothReciever {
     debugPrint(
         '[$side] Received voice data chunk: seq=$seq, length=${voiceData.length}');
     voiceCollectorAI.addChunk(seq, voiceData);
+    g1PcmAdapter.processChunk(voiceData);
   }
 
   void handleQuickNoteCommand(GlassSide side, List<int> data) {
@@ -165,7 +174,6 @@ class BluetoothReciever {
         // fetch newest note
         voiceCollectorNote.reset();
         final entry = notif.entries.first;
-        final bt = BluetoothManager();
         bt.rightGlass!.sendData(entry.buildFetchCommand(_syncId++));
       }
     } catch (e) {
