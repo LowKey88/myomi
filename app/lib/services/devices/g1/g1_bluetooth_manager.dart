@@ -597,20 +597,14 @@ Future<void> sendText(String text, {
 
 }
 
-  List<String> createSentences(List<String> words) {
-    List<String> sentences = [];
-      String sentence = '';
-      for (var word in words) {
-        sentence += '$word ';
-        if (word.endsWith('.') || word.endsWith('?') || 
-            word.endsWith('!') || word.endsWith(':')|| 
-            word.endsWith(';') || word.endsWith(')') ||
-            word.endsWith(']') || word.endsWith('}') ||
-            word.endsWith('"') || word.endsWith("'") ) {
-          sentences.add(sentence);
-          sentence = '';
-        }
-      }
+  List<String> createSentencesFromWords(List<String> words) {
+    String text = words.join(" ");
+    List<String> sentences = createSentences(text);
+    return sentences;
+  }
+   List<String> createSentences(String text) {
+    // sentences = text.split(RegExp(r'(?<=[.!?])\s+'));
+    List<String> sentences  = text.split(RegExp(r'(?<=[.!?])\s+'));
     return sentences;
   }
 
