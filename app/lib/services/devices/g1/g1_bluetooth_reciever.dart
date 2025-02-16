@@ -121,12 +121,7 @@ class BluetoothReciever {
         final transcription =
             await (await WhisperService.service()).transcribe(pcm);
         var provider = MessageProvider();
-        String? appId = provider.appProvider?.selectedChatAppId;
-        if (appId == 'no_selected') {
-          appId = null;
-        }
-        debugPrint('appId: $appId');
-        await provider.sendMessageStreamToServer(transcription, appId);
+        await provider.sendMessageStreamToServer(transcription);
         _transcriptionController.add(transcription); // Broadcast the transcription
         final endTime = DateTime.now();
 
