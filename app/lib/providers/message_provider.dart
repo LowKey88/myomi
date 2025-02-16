@@ -14,9 +14,6 @@ import 'package:friend_private/utils/alerts/app_snackbar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:friend_private/utils/file.dart';
 import 'package:uuid/uuid.dart';
-import '../services/devices/g1/g1_bluetooth_manager.dart';
-
-final BluetoothManager _bluetoothManager = BluetoothManager();
 
 class MessageProvider extends ChangeNotifier {
   AppProvider? appProvider;
@@ -342,12 +339,9 @@ class MessageProvider extends ChangeNotifier {
     notifyListeners();
     List<String> fileIds = uploadedFiles.map((e) => e.id).toList();
     clearSelectedFiles();
-    clearUploadedFiles();    await _bluetoothManager.sendText('thinking...');
-    List<String> words = message.text.trim().split(' ');
+    clearUploadedFiles();
     try {
       await for (var chunk in sendMessageStreamServer(text, appId: appProvider?.selectedChatAppId, filesId: fileIds)) {
-        words = message.text.trim().split(' ');
-
         if (chunk.type == MessageChunkType.think) {
           message.thinkings.add(chunk.text);
           notifyListeners();
@@ -363,7 +357,6 @@ class MessageProvider extends ChangeNotifier {
         if (chunk.type == MessageChunkType.done) {
           message = chunk.message!;
           messages[0] = message;
-          // for auto display clearing 
           notifyListeners();
           continue;
         }
@@ -374,9 +367,6 @@ class MessageProvider extends ChangeNotifier {
           continue;
         }
       }
-      List<String> sentences = _bluetoothManager.createSentences(words);
-      await _bluetoothManager.displaySentences(sentences);
-      
     } catch (e) {
       message.text = ServerMessageChunk.failedMessage().text;
       notifyListeners();
