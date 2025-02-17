@@ -37,6 +37,9 @@ class BluetoothManager {
   // Add mic status property with default false.
   bool isMicActive = false;
 
+  // Add a flag to control auto-reconnect behavior.
+  bool _isDisconnecting = false;
+
   factory BluetoothManager() {
     return singleton;
   }
@@ -261,9 +264,9 @@ class BluetoothManager {
   void _setReconnect(Glass glass) {
     glass.device.connectionState.listen((BluetoothConnectionState state) {
       debugPrint('[${glass.side} Glass] Connection state: $state');
-      if (state == BluetoothConnectionState.disconnected) {
-        debugPrint(
-            '[${glass.side} Glass] Disconnected, attempting to reconnect...');
+      // Only auto-reconnect if not in the process of disconnecting.
+      if (!_isDisconnecting && state == BluetoothConnectionState.disconnected) {
+        debugPrint('[${glass.side} Glass] Disconnected, attempting to reconnect...');
         glass.connect();
       }
     });
@@ -603,10 +606,11 @@ Future<void> sendText(String text, {
     return sentences;
   }
    List<String> createSentences(String text) {
-    // sentences = text.split(RegExp(r'(?<=[.!?])\s+'));
-    List<String> sentences  = text.split(RegExp(r'(?<=[.!?])\s+'));
-    return sentences;
-  }
+  // This regex splits only when the punctuation is not immediately followed by a number and a dot.
+  RegExp sentenceRegex = RegExp(r'(?<=[.!?])\s+(?!\d+\.)');
+  List<String> sentences = text.split(sentenceRegex);
+  return sentences;
+}
 
   Future<void> displaySentences(
   List<String> sentences, {
@@ -631,6 +635,9 @@ Future<void> sendText(String text, {
 }
 
 Future<void> display(String text) async {
+  final pref = await SharedPreferences.getInstance();
+  await pref.setString('last_received_message', text);
+
   List<String> sentences = createSentences(text);
   await displaySentences(sentences);
 }
@@ -638,22 +645,11 @@ Future<void> display(String text) async {
 
 
 Future<void> clearScreen() async {
-  await sendText(" ");
-  await Future.delayed(Duration(milliseconds: 100));
-  await sendCommandToGlasses(EXIT_COMMAND);
+  // await sendTextAiLegacy(".");
+  // just right glass
+  await rightGlass!.sendData(EXIT_COMMAND);
 }
 
-
- Future<void> sendTextAiLegacy(String text,
-      {Duration delay = const Duration(seconds: 5)}) async {
-    final textMsg = TextMessage(text);
-    List<List<int>> packets = textMsg.constructSendText();
-
-    for (int i = 0; i < packets.length; i++) {
-      await sendCommandToGlasses(packets[i]);
-      await Future.delayed(delay);
-    }
-  }
 
  Future<void> sendTextAi (String text, {Duration delay = const Duration(seconds: 5)}) async {
     final textMsg = TextMessage(text);
@@ -864,13 +860,47 @@ Future<void> clearScreen() async {
   }
 
   Future<void> disconnectGlasses() async {
-    if (leftGlass != null && leftGlass!.isConnected) {
-      await leftGlass!.disconnect();
+    // Set the flag to disable reconnect attempts.
+    _isDisconnecting = true;
+    // Clear stored UIDs from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('left');
+    await prefs.remove('right');
+    await prefs.remove('leftName');
+    await prefs.remove('rightName');
+
+    try {
+      // Safely disconnect left glass
+      if (leftGlass != null) {
+        if (leftGlass!.isConnected) {
+          await leftGlass!.device.disconnect();
+        }
+        leftGlass = null;
+      }
+
+      // Safely disconnect right glass
+      if (rightGlass != null) {
+        if (rightGlass!.isConnected) {
+          await rightGlass!.device.disconnect();
+        }
+        rightGlass = null;
+      }
+
+      // Cancel any pending timers
+      _scanTimer?.cancel();
+      _syncTimer?.cancel();
+      
+      // Reset scanning state
+      _isScanning = false;
+      _retryCount = 0;
+
+      debugPrint('Successfully disconnected both glasses');
+    } catch (e) {
+      debugPrint('Error during disconnect: $e');
+      // Still null out the glasses even if disconnect fails
       leftGlass = null;
-    }
-    if (rightGlass != null && rightGlass!.isConnected) {
-      await rightGlass!.disconnect();
       rightGlass = null;
+      rethrow;
     }
   }
 
