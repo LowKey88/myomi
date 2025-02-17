@@ -606,10 +606,11 @@ Future<void> sendText(String text, {
     return sentences;
   }
    List<String> createSentences(String text) {
-    // sentences = text.split(RegExp(r'(?<=[.!?])\s+'));
-    List<String> sentences  = text.split(RegExp(r'(?<=[.!?])\s+'));
-    return sentences;
-  }
+  // This regex splits only when the punctuation is not immediately followed by a number and a dot.
+  RegExp sentenceRegex = RegExp(r'(?<=[.!?])\s+(?!\d+\.)');
+  List<String> sentences = text.split(sentenceRegex);
+  return sentences;
+}
 
   Future<void> displaySentences(
   List<String> sentences, {
