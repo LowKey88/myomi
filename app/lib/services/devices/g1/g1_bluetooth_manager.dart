@@ -626,8 +626,13 @@ Future<void> sendText(String text, {
     int duration = batchText.length * durationMultiplier;
     await Future.delayed(Duration(milliseconds: duration));
   }
-  await Future.delayed(Duration(seconds: 2));
+  await Future.delayed(Duration(microseconds: 16));
   await clearScreen();
+}
+
+Future<void> display(String text) async {
+  List<String> sentences = createSentences(text);
+  await displaySentences(sentences);
 }
 
 
