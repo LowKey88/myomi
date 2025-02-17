@@ -11,7 +11,6 @@ class GlassStatus extends StatefulWidget {
 }
 
 class GlassStatusState extends State<GlassStatus> {
-  BluetoothManager bluetoothManager = BluetoothManager();
 
   bool isConnected = false;
   bool isScanning = false;
@@ -36,14 +35,14 @@ class GlassStatusState extends State<GlassStatus> {
 
   void _refreshData() {
     setState(() {
-      isConnected = bluetoothManager.isConnected;
-      isScanning = bluetoothManager.isScanning;
+      isConnected = BluetoothManager().isConnected;
+      isScanning = BluetoothManager().isScanning;
     });
   }
 
   void _scanAndConnect() {
     try {
-      bluetoothManager.startScanAndConnect(
+      BluetoothManager().startScanAndConnect(
         onUpdate: (_) => _refreshData(),
       );
     } catch (e) {
@@ -66,7 +65,7 @@ class GlassStatusState extends State<GlassStatus> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              bluetoothManager.isConnected
+              BluetoothManager().isConnected
                   ? Column(
                       children: [
                         const Text(
@@ -81,14 +80,7 @@ class GlassStatusState extends State<GlassStatus> {
                         ElevatedButton(
                           onPressed: () async {
                             // Disconnect and clear state
-                            if (bluetoothManager.leftGlass != null) {
-                              await bluetoothManager.leftGlass!.device.disconnect();
-                              bluetoothManager.leftGlass = null;
-                            }
-                            if (bluetoothManager.rightGlass != null) {
-                              await bluetoothManager.rightGlass!.device.disconnect();
-                              bluetoothManager.rightGlass = null;
-                            }
+                            await BluetoothManager().disconnectGlasses();
                             _refreshData();
                           },
                           style: ElevatedButton.styleFrom(

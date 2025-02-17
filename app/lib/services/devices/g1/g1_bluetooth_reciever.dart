@@ -8,6 +8,7 @@ import '/utils/lc3.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:friend_private/providers/message_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Command response status codes
 const int RESPONSE_SUCCESS = 0xC9;
@@ -136,7 +137,7 @@ class BluetoothReciever {
             '[$side] Transcription took: ${endTime.difference(startTime).inSeconds} seconds');
 
         break;
-
+      
       default:
         debugPrint('[$side] Unknown Even AI subcommand: $subcmd');
     }
