@@ -23,10 +23,10 @@ import 'dart:convert';
 import '../../../utils/constants.dart';
 import '../../../models/g1/glass.dart';
 
-/* Bluetooth Magnager is the heart of the application
-  * It is responsible for scanning for the glasses and connecting to them
-  * It also handles the connection state of the glasses
-  * It allows for sending commands to the glasses
+/* Bluetooth Magnager is for G1 glasses
+  * here is any other references 
+  to the G1 glasses protocols 
+  https://github.com/AugmentOS-Community/AugmentOS/blob/main/SmartGlassesManager/SGM_android/SmartGlassesManager/src/main/java/com/augmentos/smartglassesmanager/smartglassescommunicators/EvenRealitiesG1SGC.java
   */
 
 typedef OnUpdate = void Function(String message);
@@ -352,13 +352,13 @@ class BluetoothManager {
 
 static const int TEXT_COMMAND = 0x4E;
 static const int DISPLAYING_COMPLETE = 0x40;
-static const int DISPLAY_WIDTH = 360;
-static const int DISPLAY_USE_WIDTH = 360;
+static const int DISPLAY_WIDTH = 240; // 640 x 200
+static const int DISPLAY_USE_WIDTH = 240;
 static const double FONT_SIZE = 21;
 static const double FONT_DIVIDER = 2.0;
 static const int LINES_PER_SCREEN = 5;
 static const int MAX_CHUNK_SIZE = 176;
-static const List<int> EXIT_COMMAND = [0x18];
+static const List<int> EXIT_COMMAND = [0x18,0x00];
 
 int textSeqNum = 0;
 
