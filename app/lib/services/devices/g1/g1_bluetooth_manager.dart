@@ -645,9 +645,10 @@ Future<void> display(String text) async {
 
 
 Future<void> clearScreen() async {
-  // await sendTextAiLegacy(".");
+  await sendText(" "); // first clear the screem  
+  await sendTextAi(" "); // then change text protocol that will clear the screen
   // just right glass
-  await rightGlass!.sendData(EXIT_COMMAND);
+  // await rightGlass!.sendData(EXIT_COMMAND);
 }
 
 
