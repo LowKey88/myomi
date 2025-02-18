@@ -352,8 +352,8 @@ class BluetoothManager {
 
 static const int TEXT_COMMAND = 0x4E;
 static const int DISPLAYING_COMPLETE = 0x40;
-static const int DISPLAY_WIDTH = 240; // 640 x 200
-static const int DISPLAY_USE_WIDTH = 240;
+static const int DISPLAY_WIDTH = 320; // 640 x 200
+static const int DISPLAY_USE_WIDTH = 320;
 static const double FONT_SIZE = 21;
 static const double FONT_DIVIDER = 2.0;
 static const int LINES_PER_SCREEN = 5;
@@ -606,16 +606,39 @@ Future<void> sendText(String text, {
     return sentences;
   }
    List<String> createSentences(String text) {
-  // This regex splits only when the punctuation is not immediately followed by a number and a dot.
-  RegExp sentenceRegex = RegExp(r'(?<=[.!?])\s+(?!\d+\.)');
-  List<String> sentences = text.split(sentenceRegex);
-  return sentences;
+  // Replace newlines with spaces for splitting
+  text = text.replaceAll('\n', ' ');
+
+  // Existing regex prevents splitting if punctuation is followed by a digit and a dot
+  RegExp sentenceRegex = RegExp(r'(?<![\d])[.!?]\s+(?!\d+\.)');
+  List<String> initialSplit = text.split(sentenceRegex);
+
+  // Trim each piece and remove empty entries
+  initialSplit = initialSplit.map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+
+  // Further split overly long segments into chunks (e.g. ~80 chars)
+  const int maxLength = 150;
+  List<String> finalSentences = [];
+
+  for (String segment in initialSplit) {
+    String tmp = segment;
+    // While a segment is too long, chunk it
+    while (tmp.length > maxLength) {
+      finalSentences.add(tmp.substring(0, maxLength).trim());
+      tmp = tmp.substring(maxLength).trim();
+    }
+    if (tmp.isNotEmpty) {
+      finalSentences.add(tmp);
+    }
+  }
+
+  return finalSentences;
 }
 
   Future<void> displaySentences(
   List<String> sentences, {
   int sentenceCount = 1, // New parameter: number of sentences to display at once
-  int durationMultiplier = 40,
+  int durationMultiplier = 60,
 }) async {
   // Process sentences in batches of [sentenceCount]
   for (int i = 0; i < sentences.length; i += sentenceCount) {
@@ -645,6 +668,8 @@ Future<void> display(String text) async {
 
 
 Future<void> clearScreen() async {
+  await sendText(" "); 
+  await Future.delayed(Duration(milliseconds: 20));
   await sendText(" "); // first clear the screem  
   await sendTextAi(" "); // then change text protocol that will clear the screen
   // just right glass
