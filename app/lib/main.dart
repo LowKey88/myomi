@@ -48,7 +48,6 @@ import 'package:opus_dart/opus_dart.dart';
 import 'package:opus_flutter/opus_flutter.dart' as opus_flutter;
 import 'package:provider/provider.dart';
 import 'package:talker_flutter/talker_flutter.dart';
-import 'services/devices/g1/g1_bluetooth_manager.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 
@@ -101,8 +100,6 @@ void main() async {
   bool isAuth = await _init();
 
   await _initHive();
-  await BluetoothManager.singleton.initialize();
-  BluetoothManager.singleton.attemptReconnectFromStorage();
 
   if (Env.instabugApiKey != null) {
     await Instabug.setWelcomeMessageMode(WelcomeMessageMode.disabled);
