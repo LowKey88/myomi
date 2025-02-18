@@ -23,10 +23,10 @@ import 'dart:convert';
 import '../../../utils/constants.dart';
 import '../../../models/g1/glass.dart';
 
-/* Bluetooth Magnager is the heart of the application
-  * It is responsible for scanning for the glasses and connecting to them
-  * It also handles the connection state of the glasses
-  * It allows for sending commands to the glasses
+/* Bluetooth Magnager is for G1 glasses
+  * here is any other references 
+  to the G1 glasses protocols 
+  https://github.com/AugmentOS-Community/AugmentOS/blob/main/SmartGlassesManager/SGM_android/SmartGlassesManager/src/main/java/com/augmentos/smartglassesmanager/smartglassescommunicators/EvenRealitiesG1SGC.java
   */
 
 typedef OnUpdate = void Function(String message);
@@ -352,13 +352,13 @@ class BluetoothManager {
 
 static const int TEXT_COMMAND = 0x4E;
 static const int DISPLAYING_COMPLETE = 0x40;
-static const int DISPLAY_WIDTH = 360;
-static const int DISPLAY_USE_WIDTH = 360;
+static const int DISPLAY_WIDTH = 320; // 640 x 200
+static const int DISPLAY_USE_WIDTH = 320;
 static const double FONT_SIZE = 21;
 static const double FONT_DIVIDER = 2.0;
 static const int LINES_PER_SCREEN = 5;
 static const int MAX_CHUNK_SIZE = 176;
-static const List<int> EXIT_COMMAND = [0x18];
+static const List<int> EXIT_COMMAND = [0x18,0x00];
 
 int textSeqNum = 0;
 
@@ -606,16 +606,39 @@ Future<void> sendText(String text, {
     return sentences;
   }
    List<String> createSentences(String text) {
-  // This regex splits only when the punctuation is not immediately followed by a number and a dot.
-  RegExp sentenceRegex = RegExp(r'(?<=[.!?])\s+(?!\d+\.)');
-  List<String> sentences = text.split(sentenceRegex);
-  return sentences;
+  // Replace newlines with spaces for splitting
+  text = text.replaceAll('\n', ' ');
+
+  // Existing regex prevents splitting if punctuation is followed by a digit and a dot
+  RegExp sentenceRegex = RegExp(r'(?<![\d])[.!?]\s+(?!\d+\.)');
+  List<String> initialSplit = text.split(sentenceRegex);
+
+  // Trim each piece and remove empty entries
+  initialSplit = initialSplit.map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+
+  // Further split overly long segments into chunks (e.g. ~80 chars)
+  const int maxLength = 150;
+  List<String> finalSentences = [];
+
+  for (String segment in initialSplit) {
+    String tmp = segment;
+    // While a segment is too long, chunk it
+    while (tmp.length > maxLength) {
+      finalSentences.add(tmp.substring(0, maxLength).trim());
+      tmp = tmp.substring(maxLength).trim();
+    }
+    if (tmp.isNotEmpty) {
+      finalSentences.add(tmp);
+    }
+  }
+
+  return finalSentences;
 }
 
   Future<void> displaySentences(
   List<String> sentences, {
   int sentenceCount = 1, // New parameter: number of sentences to display at once
-  int durationMultiplier = 40,
+  int durationMultiplier = 60,
 }) async {
   // Process sentences in batches of [sentenceCount]
   for (int i = 0; i < sentences.length; i += sentenceCount) {
@@ -645,9 +668,12 @@ Future<void> display(String text) async {
 
 
 Future<void> clearScreen() async {
-  // await sendTextAiLegacy(".");
+  await sendText(" "); 
+  await Future.delayed(Duration(milliseconds: 20));
+  await sendText(" "); // first clear the screem  
+  await sendTextAi(" "); // then change text protocol that will clear the screen
   // just right glass
-  await rightGlass!.sendData(EXIT_COMMAND);
+  // await rightGlass!.sendData(EXIT_COMMAND);
 }
 
 

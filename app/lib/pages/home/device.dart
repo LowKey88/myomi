@@ -197,20 +197,6 @@ class _ConnectedDeviceState extends State<ConnectedDevice> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
-              const Divider(color: Colors.white24),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-                child: Text(
-                  'G1 Smart Glasses',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const GlassStatus(), // Add G1 glasses status widget
             ],
           ),
         ),

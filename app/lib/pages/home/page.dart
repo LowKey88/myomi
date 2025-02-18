@@ -36,6 +36,7 @@ import 'package:upgrader/upgrader.dart';
 
 import '../conversations/sync_page.dart';
 import 'widgets/battery_info_widget.dart';
+import '/services/devices/g1/g1_bluetooth_manager.dart';
 
 class HomePageWrapper extends StatefulWidget {
   final String? navigateToRoute;
@@ -202,6 +203,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver, Ticker
       if (mounted) {
         await Provider.of<CaptureProvider>(context, listen: false)
             .streamDeviceRecording(device: Provider.of<DeviceProvider>(context, listen: false).connectedDevice);
+              await BluetoothManager.singleton.initialize();
+              await  BluetoothManager.singleton.attemptReconnectFromStorage();
       }
 
       // Navigate

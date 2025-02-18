@@ -10,6 +10,7 @@ import 'package:friend_private/utils/other/temp.dart';
 import 'package:friend_private/widgets/dialog.dart';
 import 'package:intercom_flutter/intercom_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:friend_private/widgets/g1_glass_status.dart';
 
 import 'device_settings.dart';
 
@@ -127,6 +128,20 @@ class _SettingsPageState extends State<SettingsPage> {
                   );
                 }, icon: Icons.logout),
                 const SizedBox(height: 24),
+                const Divider(color: Colors.white24),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: Text(
+                    'G1 Smart Glasses',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const GlassStatus(),
+                const SizedBox(height: 32),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Align(
