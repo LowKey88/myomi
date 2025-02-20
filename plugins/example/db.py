@@ -68,6 +68,34 @@ def append_segment_to_transcript(uid: str, session_id: str, new_segments: list[T
     r.set(key, str(segments))
     return [TranscriptSegment(**segment) for segment in segments]
 
+# **********************************************************
+# ************ FEEDBACK PLUGIN UTILS ************
+# **********************************************************
+
+def store_feedback(transcript_hash: str, feedback: str, sentiment: str, summary: str):
+    """Store feedback data in Redis"""
+    r.hset(f'feedback:{transcript_hash}', mapping={
+        'feedback': feedback,
+        'sentiment': sentiment,
+        'summary': summary
+    })
+    r.expire(f'feedback:{transcript_hash}', 60 * 60 * 24 * 7)  # 7 days expiry
+
+def get_feedback(transcript_hash: str) -> dict:
+    """Get feedback data from Redis"""
+    result = r.hgetall(f'feedback:{transcript_hash}')
+    if not result:
+        return None
+    return {
+        'feedback': result[b'feedback'].decode('utf-8'),
+        'sentiment': result[b'sentiment'].decode('utf-8'),
+        'summary': result[b'summary'].decode('utf-8')
+    }
+
+def remove_feedback(transcript_hash: str):
+    """Remove feedback data from Redis"""
+    r.delete(f'feedback:{transcript_hash}')
+
 
 def remove_transcript(uid: str, session_id: str):
     r.delete(f'transcript:{uid}:{session_id}')

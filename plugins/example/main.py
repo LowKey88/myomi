@@ -6,6 +6,7 @@ from modal import Image, Secret, asgi_app
 # from _mem0 import router as mem0_router
 from _multion import router as multion_router
 from basic import memory_created as basic_memory_created_router
+from basic import omi_feedback as basic_omi_feedback_router
 from oauth import memory_created as oauth_memory_created_router
 from zapier import memory_created as zapier_memory_created_router
 # from ahda import client as ahda_realtime_transcription_router
@@ -48,6 +49,7 @@ def api():
 
 
 app.include_router(basic_memory_created_router.router)
+app.include_router(basic_omi_feedback_router.router)
 app.include_router(oauth_memory_created_router.router)
 app.include_router(zapier_memory_created_router.router)
 # app.include_router(ahda_realtime_transcription_router.router)
