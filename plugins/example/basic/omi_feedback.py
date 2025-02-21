@@ -11,7 +11,7 @@ chat = ChatOpenAI(model='gpt-4o', temperature=0)
 # Load sentiment analysis model
 sentiment_analyzer = pipeline("sentiment-analysis")
 
-@router.post('/conversation-feedback', tags=['memory-enhanced'], response_model=EndpointResponse)
+@router.post('/convo-enhanced', tags=['memory-enhanced'], response_model=EndpointResponse)
 def conversation_feedback(memory: Memory):
     transcript = memory.get_transcript()
     # Use hash of transcript as unique identifier
