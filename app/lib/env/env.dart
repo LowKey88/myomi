@@ -38,6 +38,8 @@ abstract class Env {
   static String? get intercomIOSApiKey => _instance.intercomIOSApiKey;
 
   static String? get intercomAndroidApiKey => _instance.intercomAndroidApiKey;
+
+  static String? get posthogApiKey => _instance.posthogApiKey;
 }
 
 abstract class EnvFields {
@@ -58,4 +60,6 @@ abstract class EnvFields {
   String? get intercomIOSApiKey;
 
   String? get intercomAndroidApiKey;
+
+  String? get posthogApiKey;
 }
