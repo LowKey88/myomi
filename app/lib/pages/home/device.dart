@@ -134,7 +134,7 @@ class _ConnectedDeviceState extends State<ConnectedDevice> {
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -144,7 +144,7 @@ class _ConnectedDeviceState extends State<ConnectedDevice> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         )
                 ],
