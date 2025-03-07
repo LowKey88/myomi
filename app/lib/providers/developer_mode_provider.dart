@@ -29,6 +29,7 @@ class DeveloperModeProvider extends BaseProvider {
 
   bool localSyncEnabled = false;
   bool followUpQuestionEnabled = false;
+  bool transcriptionDiagnosticEnabled = false;
 
   bool _envToggle = false;  // Add this to track whether env fields should be shown
 
@@ -108,6 +109,7 @@ class DeveloperModeProvider extends BaseProvider {
     webhookAudioBytes.text = SharedPreferencesUtil().webhookAudioBytes;
     webhookAudioBytesDelay.text = SharedPreferencesUtil().webhookAudioBytesDelay;
     followUpQuestionEnabled = SharedPreferencesUtil().devModeJoanFollowUpEnabled;
+    transcriptionDiagnosticEnabled = SharedPreferencesUtil().transcriptionDiagnosticEnabled;
     conversationEventsToggled = SharedPreferencesUtil().conversationEventsToggled;
     transcriptsToggled = SharedPreferencesUtil().transcriptsToggled;
     audioBytesToggled = SharedPreferencesUtil().audioBytesToggled;
@@ -213,6 +215,7 @@ class DeveloperModeProvider extends BaseProvider {
     // Experimental
     prefs.localSyncEnabled = localSyncEnabled;
     prefs.devModeJoanFollowUpEnabled = followUpQuestionEnabled;
+    prefs.transcriptionDiagnosticEnabled = transcriptionDiagnosticEnabled;
 
     MixpanelManager().settingsSaved(
       hasWebhookConversationCreated: conversationEventsToggled,
@@ -235,6 +238,11 @@ class DeveloperModeProvider extends BaseProvider {
 
   void onFollowUpQuestionChanged(var value) {
     followUpQuestionEnabled = value;
+    notifyListeners();
+  }
+
+  void onTranscriptionDiagnosticChanged(var value) {
+    transcriptionDiagnosticEnabled = value;
     notifyListeners();
   }
 }
